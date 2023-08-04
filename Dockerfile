@@ -4,11 +4,6 @@
 # https://hub.docker.com/_/golang
 FROM golang:1.20-buster as builder
 
-RUN git clone https://github.com/rakyll/hey.git
-
-RUN GOOS=linux   GOARCH=amd64  CGO_ENABLED=0 \
-    go get -u github.com/rakyll/hey
-
 # Create and change to the app directory.
 WORKDIR /app
 
@@ -24,7 +19,6 @@ COPY invoke.go ./
 # Build the binary.
 RUN go build -mod=readonly -v -o server
 
-
 # Use the official gcloud slim image for a lean production container.
 
 FROM gcr.io/google.com/cloudsdktool/cloud-sdk:slim
@@ -32,8 +26,6 @@ RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -
     --no-install-recommends \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /go/bin/hey  /
 
 # Create and change to the app directory.
 WORKDIR /
